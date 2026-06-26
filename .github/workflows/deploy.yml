@@ -1,4 +1,4 @@
-name: Deploy Website to Apache
+name: Deploy Website with Proxmox Snapshot
 
 on:
   push:
@@ -12,7 +12,26 @@ jobs:
       - name: Code checkout
         uses: actions/checkout@v4
 
+      - name: Create Proxmox Snapshot
+        run: |
+          echo "Déclenchement du snapshot Proxmox..."
+          # Générer un nom de snapshot unique contenant le numéro du job GitHub Actions
+          SNAPSHOT_NAME="pre_deploy_job_${{ github.run_number }}"
+          
+          # Requête API à Proxmox en ignorant la validation SSL expirée (-k / --insecure)
+          curl -k -X POST \
+            -H "Authorization: PVEAPIToken=${{ secrets.PROXMOX_TOKEN_ID }}=${{ secrets.PROXMOX_TOKEN_SECRET }}" \
+            -d "snapname=${SNAPSHOT_NAME}" \
+            -d "description=Snapshot automatique créé par GitHub Actions avant le déploiement du site." \
+            "${{ secrets.PROXMOX_API_URL }}/nodes/${{ secrets.PROXMOX_NODE }}/lxc/${{ secrets.PROXMOX_VMID }}/snapshot"
+          
+          # Pause de 10 secondes pour laisser le temps à Proxmox d'initier le snapshot
+          sleep 10
+
       - name: Deploy files to Apache directory
         run: |
-          # Copie des fichiers depuis le dossier temporaire de GitHub vers le dossier d'Apache
+          echo "Déploiement du site internet sur Apache..."
+          # Copie sécurisée des fichiers
           cp -r * /var/www/html/
+          # S'assurer que les permissions du dossier web restent correctes
+          chmod -R 775 /var/www/html/
