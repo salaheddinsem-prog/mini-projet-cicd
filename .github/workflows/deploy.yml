@@ -1,0 +1,18 @@
+name: Deploy Website to Apache
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy files to Apache directory
+        run: |
+          # Copie des fichiers depuis le dossier temporaire de GitHub vers le dossier d'Apache
+          cp -r * /var/www/html/
