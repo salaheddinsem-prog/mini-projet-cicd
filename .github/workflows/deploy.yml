@@ -38,3 +38,11 @@ jobs:
       - name: Notify Zabbix of successful deployment
         run: |
           zabbix_sender -z 192.168.72.112 -s "Web-Server-Prod" -k deploy.status -o "Succès : Déploiement du $(date +'%d/%m/%Y %H:%M')"
+      - name: Notify Zabbix of Deployment Status
+        if: always() # S'exécute même si les étapes précédentes échouent
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            zabbix_sender -z 192.168.72.112 -s "Web-Server-Prod" -k deploy.status -o "Succès : Version ${{ github.sha }} déployée par ${{ github.actor }}"
+          else
+            zabbix_sender -z 192.168.72.112 -s "Web-Server-Prod" -k deploy.status -o "ERREUR : Le déploiement ${{ github.run_number }} a échoué"
+          fi    
