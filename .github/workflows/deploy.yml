@@ -39,8 +39,8 @@ jobs:
           #NOTIFICATION_Telegram
           
       - name: Notify Zabbix of Deployment Status
-       if: always()
-       run: |
+        if: always()
+        run: |
           ZABBIX_SERVER="192.168.72.112"
           HOST_NAME="Web-Server-Prod"
         
