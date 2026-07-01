@@ -35,14 +35,21 @@ jobs:
           cp -r * /var/www/html/
           # S'assurer que les permissions du dossier web restent correctes
           chmod -R 775 /var/www/html/
-      - name: Notify Zabbix of successful deployment
-        run: |
-          zabbix_sender -z 192.168.72.112 -s "Web-Server-Prod" -k deploy.status -o "Succès : Déploiement du $(date +'%d/%m/%Y %H:%M')"
+
+          #NOTIFICATION_Telegram
+          
       - name: Notify Zabbix of Deployment Status
-        if: always() # S'exécute même si les étapes précédentes échouent
-        run: |
+       if: always()
+       run: |
+          ZABBIX_SERVER="192.168.72.112"
+          HOST_NAME="Web-Server-Prod"
+        
           if [[ "${{ job.status }}" == "success" ]]; then
-            zabbix_sender -z 192.168.72.112 -s "Web-Server-Prod" -k deploy.status -o "Succès : Version ${{ github.sha }} déployée par ${{ github.actor }}"
+          # On envoie 1 (Succès) et le message
+            zabbix_sender -z $ZABBIX_SERVER -s "$HOST_NAME" -k deploy.result -o 1
+            zabbix_sender -z $ZABBIX_SERVER -s "$HOST_NAME" -k deploy.status -o "Succès : Version ${{ github.sha }} par ${{ github.actor }}"
           else
-            zabbix_sender -z 192.168.72.112 -s "Web-Server-Prod" -k deploy.status -o "ERREUR : Le déploiement ${{ github.run_number }} a échoué"
-          fi    
+          # On envoie 0 (Échec) et le message
+            zabbix_sender -z $ZABBIX_SERVER -s "$HOST_NAME" -k deploy.result -o 0
+            zabbix_sender -z $ZABBIX_SERVER -s "$HOST_NAME" -k deploy.status -o "ERREUR : Le déploiement ${{ github.run_number }} a échoué"
+          fi
