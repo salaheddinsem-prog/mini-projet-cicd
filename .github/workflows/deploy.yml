@@ -26,15 +26,13 @@ jobs:
             "${{ secrets.PROXMOX_API_URL }}/nodes/${{ secrets.PROXMOX_NODE }}/lxc/${{ secrets.PROXMOX_VMID }}/snapshot"
           
           # Pause de 10 secondes pour laisser le temps à Proxmox d'initier le snapshot
-<<<<<<< Updated upstream
+
           sleep 10
           zabbix_sender -z 192.168.72.112 \
             -s "Web-Server-Prod" \
             -k snapshot.status \
             -o "Snapshot pre_deploy_job_${{ github.run_number }} créé"
-=======
           sleep 30
->>>>>>> Stashed changes
 
       - name: Deploy files to Apache directory
         run: |
