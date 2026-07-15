@@ -36,9 +36,15 @@ jobs:
 
       - name: Deploy files to Apache directory
         run: |
+          set -eux
           echo "Déploiement du site internet sur Apache..."
-          # Copie sécurisée des fichiers
+          pwd
+          ls -lah
+         # Copie sécurisée des fichiers
           cp -r * /var/www/html/
+          cp -rv . /var/www/html/
+
+          ls -lah /var/www/html
           # S'assurer que les permissions du dossier web restent correctes
           chmod -R 775 /var/www/html/
 
